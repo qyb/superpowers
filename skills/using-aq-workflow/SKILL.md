@@ -1,6 +1,6 @@
 ---
-name: using-superpowers
-description: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions
+name: using-aq-workflow
+description: Use when starting any conversation - establishes how to find and use skills in the aq-workflow collection, requiring Skill tool invocation before ANY response including clarifying questions
 ---
 
 <SUBAGENT-STOP>
@@ -17,10 +17,10 @@ This is not negotiable. This is not optional. You cannot rationalize your way ou
 
 ## Instruction Priority
 
-Superpowers skills override default system prompt behavior, but **user instructions always take precedence**:
+aq-workflow skills override default system prompt behavior, but **user instructions always take precedence**:
 
 1. **User's explicit instructions** (CLAUDE.md, GEMINI.md, AGENTS.md, direct requests) — highest priority
-2. **Superpowers skills** — override default system behavior where they conflict
+2. **aq-workflow skills** — override default system behavior where they conflict
 3. **Default system prompt** — lowest priority
 
 If CLAUDE.md, GEMINI.md, or AGENTS.md says "don't use TDD" and a skill says "always use TDD," follow the user's instructions. The user is in control.
@@ -33,11 +33,13 @@ If CLAUDE.md, GEMINI.md, or AGENTS.md says "don't use TDD" and a skill says "alw
 
 **In Gemini CLI:** Skills activate via the `activate_skill` tool. Gemini loads skill metadata at session start and activates the full content on demand.
 
+**In ZCode:** Use the `Skill` tool. Skills are auto-discovered from `<project>/.zcode/skills/`, `<project>/.agents/skills/`, `~/.zcode/skills/`, and `~/.agents/skills/` (highest priority first). Local skills override plugin skills of the same name. ZCode has no SessionStart auto-bootstrap hook — invoke this `using-aq-workflow` skill manually once at session start (or rely on the project's AGENTS.md to remind you).
+
 **In other environments:** Check your platform's documentation for how skills are loaded.
 
 ## Platform Adaptation
 
-Skills use Claude Code tool names. Non-CC platforms: see `references/copilot-tools.md` (Copilot CLI), `references/codex-tools.md` (Codex) for tool equivalents. Gemini CLI users get the tool mapping loaded automatically via GEMINI.md.
+Skills use Claude Code tool names. Non-CC platforms: see `references/copilot-tools.md` (Copilot CLI), `references/codex-tools.md` (Codex) for tool equivalents. Gemini CLI users get the tool mapping loaded automatically via GEMINI.md. ZCode uses the same tool names as Claude Code (Read/Edit/Write/Bash/Grep/Glob/TodoWrite/Skill/etc.) — no mapping file needed.
 
 # Using Skills
 

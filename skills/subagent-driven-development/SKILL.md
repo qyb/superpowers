@@ -41,9 +41,45 @@ digraph when_to_use {
 
 ## The Process
 
+### Prerequisites: Git must be clean
+
+**Before anything else, verify the working tree is clean.** Run:
+
+```bash
+git status --porcelain
+```
+
+- **Empty output** → clean, proceed.
+- **Any output** → **STOP. Refuse to start.** Do NOT auto-commit, auto-stash, or otherwise touch the working tree. Cleanup is the user's responsibility.
+
+Report to the user:
+
+```
+Cannot start subagent-driven-development: working tree is not clean.
+
+Uncommitted changes detected:
+[output of git status --porcelain]
+
+This flow requires a clean tree because each task's implementer commits its own
+work, and the code-reviewer subagent evaluates changes via `git diff BASE..HEAD`.
+Dirty state at start would corrupt the diff boundary and pollute the first task's
+commit with unrelated changes.
+
+Please commit or stash these changes manually, then re-invoke.
+```
+
+**No exceptions.** Do not proceed past this check until the user confirms the tree is clean. Do not offer to do the cleanup yourself — stash/commit decisions belong to the user, not the agent.
+
 ```dot
 digraph process {
     rankdir=TB;
+
+    "Verify git tree clean" [shape=diamond];
+    "REFUSE: tell user to clean manually" [shape=box style=filled fillcolor=lightcoral];
+    "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
+
+    "Verify git tree clean" -> "REFUSE: tell user to clean manually" [label="dirty"];
+    "Verify git tree clean" -> "Read plan, extract all tasks with full text, note context, create TodoWrite" [label="clean"];
 
     subgraph cluster_per_task {
         label="Per Task";
@@ -63,7 +99,7 @@ digraph process {
     "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
-    "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
+    "Use aq-workflow:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
@@ -82,7 +118,7 @@ digraph process {
     "Mark task complete in TodoWrite" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
-    "Dispatch final code reviewer subagent for entire implementation" -> "Use superpowers:finishing-a-development-branch";
+    "Dispatch final code reviewer subagent for entire implementation" -> "Use aq-workflow:finishing-a-development-branch";
 }
 ```
 
@@ -236,6 +272,7 @@ Done!
 ## Red Flags
 
 **Never:**
+- **Start with a dirty git tree** (see Prerequisites — refuse and hand cleanup to the user)
 - Start implementation on main/master branch without explicit user consent
 - Skip reviews (spec compliance OR code quality)
 - Proceed with unfixed issues
@@ -248,6 +285,7 @@ Done!
 - Let implementer self-review replace actual review (both are needed)
 - **Start code quality review before spec compliance is ✅** (wrong order)
 - Move to next task while either review has open issues
+- **Auto-commit or auto-stash on the user's behalf to "clean up" before starting** (cleanup is the user's decision)
 
 **If subagent asks questions:**
 - Answer clearly and completely
@@ -267,13 +305,13 @@ Done!
 ## Integration
 
 **Required workflow skills:**
-- **superpowers:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
-- **superpowers:writing-plans** - Creates the plan this skill executes
-- **superpowers:requesting-code-review** - Code review template for reviewer subagents
-- **superpowers:finishing-a-development-branch** - Complete development after all tasks
+- **aq-workflow:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
+- **aq-workflow:writing-plans** - Creates the plan this skill executes
+- **aq-workflow:requesting-code-review** - Code review template for reviewer subagents
+- **aq-workflow:finishing-a-development-branch** - Complete development after all tasks
 
 **Subagents should use:**
-- **superpowers:test-driven-development** - Subagents follow TDD for each task
+- **aq-workflow:test-driven-development** - Subagents follow TDD for each task
 
 **Alternative workflow:**
-- **superpowers:executing-plans** - Use for parallel session instead of same-session execution
+- **aq-workflow:executing-plans** - Use for parallel session instead of same-session execution

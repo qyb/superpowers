@@ -15,22 +15,25 @@ Guide completion of development work by presenting clear options and handling ch
 
 ## The Process
 
-### Step 1: Verify Tests
+### Step 1: Verify Per Plan's Tiers
 
-**Before presenting options, verify tests pass:**
+**Before presenting options, run verification appropriate to the work done.**
+Do NOT blindly run a generic test suite — match the plan's verification tiers:
 
-```bash
-# Run project's test suite
-npm test / cargo test / pytest / go test ./...
+- **Plan used TDD tier** (shared library): run the project test suite
+- **Plan used run-and-verify tier** (research scripts): re-run each script's compile check + quick run + output sanity
+- **Plan used decision-memo tier** (no code): no test needed; verify the markdown renders and links resolve
+- **Mixed plan**: run each task's tier-appropriate verification
+
+Check project AGENTS.md for the exact command (e.g., venv interpreter path `../.venv/bin/python3` or `..\.venv\Scripts\python.exe`, and flags like `-m "not slow"`). Do NOT use a generic `npm test` / `pytest`.
+
+**If verification fails:**
 ```
+Verification failing (<N> issues). Must fix before completing:
 
-**If tests fail:**
-```
-Tests failing (<N> failures). Must fix before completing:
+[Show failures / sanity violations]
 
-[Show failures]
-
-Cannot proceed with merge/PR until tests pass.
+Cannot proceed with merge/PR until verification passes.
 ```
 
 Stop. Don't proceed to Step 2.
@@ -180,7 +183,7 @@ WORKTREE_PATH=$(git rev-parse --show-toplevel)
 
 **If `GIT_DIR == GIT_COMMON`:** Normal repo, no worktree to clean up. Done.
 
-**If worktree path is under `.worktrees/`, `worktrees/`, or `~/.config/superpowers/worktrees/`:** Superpowers created this worktree — we own cleanup.
+**If worktree path is under `.worktrees/`, `worktrees/`, or `~/.config/superpowers/worktrees/`:** aq-workflow (or upstream superpowers) created this worktree — we own cleanup.
 
 ```bash
 MAIN_ROOT=$(git -C "$(git rev-parse --git-common-dir)/.." rev-parse --show-toplevel)

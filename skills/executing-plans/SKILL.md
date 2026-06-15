@@ -11,7 +11,7 @@ Load plan, review critically, execute all tasks, report when complete.
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
-**Note:** Tell your human partner that Superpowers works much better with access to subagents. The quality of its work will be significantly higher if run on a platform with subagent support (such as Claude Code or Codex). If subagents are available, use superpowers:subagent-driven-development instead of this skill.
+**Note:** If subagent support is available (ZCode custom agents defined under `.zcode/cli/agents/`), aq-workflow:subagent-driven-development usually produces higher-quality results — fresh subagent per task with two-stage review. Use this inline executing-plans skill when you want same-session batch execution instead.
 
 ## The Process
 
@@ -24,16 +24,17 @@ Load plan, review critically, execute all tasks, report when complete.
 ### Step 2: Execute Tasks
 
 For each task:
-1. Mark as in_progress
-2. Follow each step exactly (plan has bite-sized steps)
-3. Run verifications as specified
-4. Mark as completed
+1. Read its stated **verification tier** from the task header (TDD / run-and-verify / decision memo)
+2. Mark as in_progress
+3. Follow that tier's step template exactly — do NOT impose TDD steps on a run-and-verify task, and do NOT skip verification on a TDD task
+4. Run verifications as specified BY THAT TIER (check AGENTS.md for exact commands: venv interpreter path, `-m "not slow"` flag, sanity criteria)
+5. Mark as completed
 
 ### Step 3: Complete Development
 
 After all tasks complete and verified:
 - Announce: "I'm using the finishing-a-development-branch skill to complete this work."
-- **REQUIRED SUB-SKILL:** Use superpowers:finishing-a-development-branch
+- **REQUIRED SUB-SKILL:** Use aq-workflow:finishing-a-development-branch
 - Follow that skill to verify tests, present options, execute choice
 
 ## When to Stop and Ask for Help
@@ -65,6 +66,6 @@ After all tasks complete and verified:
 ## Integration
 
 **Required workflow skills:**
-- **superpowers:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
-- **superpowers:writing-plans** - Creates the plan this skill executes
-- **superpowers:finishing-a-development-branch** - Complete development after all tasks
+- **aq-workflow:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
+- **aq-workflow:writing-plans** - Creates the plan this skill executes
+- **aq-workflow:finishing-a-development-branch** - Complete development after all tasks

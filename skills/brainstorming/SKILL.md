@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: "Use when exploring user intent, requirements, and design before implementation — for shared-library work, multi-step features, or decisions/standards needing an RFC. Trivial fixes and single-script edits can skip this."
 ---
 
 # Brainstorming Ideas Into Designs
@@ -9,27 +9,35 @@ Help turn ideas into fully formed designs and specs through natural collaborativ
 
 Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
 
-<HARD-GATE>
-Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
-</HARD-GATE>
+## Triage: Does This Need a Design?
 
-## Anti-Pattern: "This Is Too Simple To Need A Design"
+**User's stated tier takes precedence.** If the user declared a tier when invoking this skill (e.g. "/brainstorming rfc", "/brainstorming spec", or said "this is a research script" in their message), adopt it without re-classifying. Only self-classify when the user gave no signal.
 
-Every project goes through this process. A todo list, a single-function utility, a config change — all of them. "Simple" projects are where unexamined assumptions cause the most wasted work. The design can be short (a few sentences for truly simple projects), but you MUST present it and get approval.
+When self-classifying, the project's AGENTS.md is the authority for tier boundaries; default to the heavier tier if ambiguous.
+
+| Tier | User signal (any of) | Process |
+|------|----------------------|---------|
+| **Trivial** | "fix", "tweak", "typo", bug fix, param change, single-function edit | Skip this skill. Go straight to implementation with appropriate verification. |
+| **Research script** | "rfc script" / "research script" / new diagnostic / one-off analysis (see AGENTS.md "研究脚本 run-and-verify") | Lightweight mode: clarify goal + sanity criteria only. No spec doc. Go to writing-plans with run-and-verify tier. |
+| **Shared library / spec** | "spec" / shared-library build, code imported by ≥2 callers, or spec pins formulas to field level (see AGENTS.md "共享库 TDD") | Full process: this skill's complete checklist → spec doc → writing-plans with TDD tier. |
+| **RFC** | "rfc" / decision / standard / governance / no code change / defines a rule or criteria | Decision mode: see RFC Branch below. Produces an RFC, not a spec+plan. |
+
+**No exceptions:** If you skip this skill for a Trivial task, you still must classify its verification tier (see writing-plans) before implementing.
 
 ## Checklist
 
 You MUST create a task for each of these items and complete them in order:
 
-1. **Explore project context** — check files, docs, recent commits
-2. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
-3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
-4. **Propose 2-3 approaches** — with trade-offs and your recommendation
-5. **Present design** — in sections scaled to their complexity, get user approval after each section
-6. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit
-7. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-8. **User reviews written spec** — ask user to review the spec file before proceeding
-9. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+1. **Triage** — adopt the user's stated tier if they declared one (e.g. "rfc" / "spec" / "research script" in their invocation or message); otherwise self-classify into Trivial / Research script / Shared library / Decision-governance (see Triage section). Steps 2-9 below apply ONLY to the Shared-library tier. Research-script tier: jump to step 3 (clarify) then skip to terminal writing-plans. Decision-governance tier: skip to RFC Branch. Trivial tier: skip this skill entirely.
+2. **Explore project context** — check files, docs, recent commits
+3. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
+4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
+5. **Propose 2-3 approaches** — with trade-offs and your recommendation
+6. **Present design** — in sections scaled to their complexity, get user approval after each section
+7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit
+8. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
+9. **User reviews written spec** — ask user to review the spec file before proceeding
+10. **Transition to implementation** — see Terminal State: invoke `writing-plans` (shared-library build) or produce RFC (decision/governance, terminal)
 
 ## Process Flow
 
@@ -63,7 +71,15 @@ digraph brainstorming {
 }
 ```
 
-**The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
+## Terminal State
+
+Brainstorming ends in ONE of three ways — choose by tier (see Triage above):
+
+1. **Shared-library build** → write spec doc → invoke `writing-plans`
+2. **Decision / standard / governance** → write RFC doc (TERMINAL; no plan follows — see RFC Branch below)
+3. **Research-script lightweight mode** → invoke `writing-plans` directly (no spec doc)
+
+Do NOT invoke any other implementation skill directly (frontend-design, mcp-builder, etc.). The only downstream skills are `writing-plans` (for build work) or none (for RFC terminal).
 
 ## The Process
 
@@ -109,8 +125,8 @@ digraph brainstorming {
 **Documentation:**
 
 - Write the validated design (spec) to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
+  - **Spec 必须用中文编写**（标题、章节名、正文、表格、decision 都用中文；代码、命令、文件路径、标识符保留原文）
   - (User preferences for spec location override this default)
-- Use elements-of-style:writing-clearly-and-concisely skill if available
 - Commit the design document to git
 
 **Spec Self-Review:**
@@ -132,8 +148,45 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 **Implementation:**
 
-- Invoke the writing-plans skill to create a detailed implementation plan
-- Do NOT invoke any other skill. writing-plans is the next step.
+The transition depends on the tier (see Triage and Terminal State above):
+
+- **Shared-library build** (spec doc written & approved) → invoke `writing-plans` with TDD tier
+- **Research-script lightweight mode** (no spec doc) → invoke `writing-plans` with run-and-verify tier directly
+- **Decision / standard / governance** → RFC is terminal. Do NOT invoke writing-plans. See RFC Branch below.
+
+Do NOT invoke any other implementation skill (frontend-design, mcp-builder, etc.).
+
+## RFC Branch (Decision / Standard / Governance)
+
+When the outcome is a decision, standard, or governance rule — not a build task — produce an RFC instead of a spec+plan. Examples: promotion/demotion criteria, status tiers, methodology standards, cross-sector conventions, naming rules.
+
+**Save RFCs to:** `docs/superpowers/rfcs/YYYY-MM-DD-<topic>.md`
+
+**RFC 必须用中文编写**（标题、章节名、正文、表格、决策内容都用中文；代码、命令、文件路径、标识符保留原文）。
+
+**RFC 结构模板：**
+
+```markdown
+# [标题]
+
+> **状态**: Draft | Accepted | Superseded
+> **日期**: YYYY-MM-DD
+> **范围**: [本 RFC 治理什么]
+
+## 背景
+[为什么现在需要这个决策]
+
+## 目标
+[本 RFC 要回答的问题]
+
+## [决策正文]
+[标准、分层、规则、表格 —— 实际的规范内容]
+
+## 非目标
+[本 RFC 明确不做决定的部分]
+```
+
+**An RFC is a terminal deliverable.** It does NOT transition to writing-plans. Any concrete build work that follows from an accepted RFC gets its own brainstorming → spec → plan cycle, scoped to one task.
 
 ## Key Principles
 
