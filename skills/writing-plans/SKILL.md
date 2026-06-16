@@ -17,7 +17,17 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Context:** If working in an isolated worktree, it should have been created via the `aq-workflow:using-git-worktrees` skill at execution time.
 
-**Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
+## Plan Mode: Artifact or Lightweight
+
+Not every multi-step task needs a persisted plan document. Decide by whether the plan needs to outlive this moment — for handoff, for review, or for reference across sessions.
+
+**Lightweight mode — track internally, no artifact:**
+The task is contained enough to hold in context (single component, a handful of steps, executing inline now). Track the steps in your working task list, apply the right verification tier per task, and proceed to implement. Skip the rest of this skill (File Structure, task templates, Self-Review) — those govern the written document. **No review gate; you are already implementing.**
+
+**Artifact mode — write to `plans/`, then STOP:**
+The task is complex, cross-cutting, or needs handoff (to a subagent, a fresh session, or your human partner). Write the full document using the structure below, save it, then hard-stop for review before any implementation (see Execution Handoff).
+
+**Save artifacts to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
 
 ## Scope Check
@@ -178,7 +188,9 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+**This gate applies ONLY to artifact mode** — when you wrote a persisted plan document. If you are in lightweight mode (tracking internally, already implementing), you have no handoff; keep going.
+
+After saving the artifact, STOP. Present the choice below and **wait for the user's response before any implementation**:
 
 **"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Two execution options:**
 
@@ -187,6 +199,8 @@ After saving the plan, offer execution choice:
 **2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
 
 **"Which approach?"**
+
+Do NOT begin Task 1. Do NOT create a worktree. Do NOT start editing files. The user picks the execution path; you do not assume one.
 
 **If Subagent-Driven chosen:**
 - **REQUIRED SUB-SKILL:** Use aq-workflow:subagent-driven-development
