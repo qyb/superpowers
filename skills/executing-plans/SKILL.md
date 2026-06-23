@@ -15,7 +15,16 @@ Load plan, review critically, execute all tasks, report when complete.
 
 ## The Process
 
+### Step 0: Decision Gate (轻量任务豁免)
+
+Before executing or creating any physical plan file, evaluate if it is truly necessary:
+- **物理 Plan 禁用场景**：不修改代码的纯审查/调研/分析任务（如 RFC 审查、方案讨论）；单文件局部修改、参数微调等 Trivial 任务；单次会话即可闭环的轻量级任务。
+- **执行规则**：
+  1. 若属于上述禁用场景，**强制采用 Lightweight 模式**（禁止创建物理 plan 文件，只需在 Context/当前回复中以 Markdown Task 列表跟踪步骤并执行）。
+  2. 若符合，直接跳过 Step 1（不创建/不读取物理 Plan 文件），直接在上下文中列出任务步骤并开始执行。
+
 ### Step 1: Load and Review Plan
+*(Only applies to Artifact mode - when a physical plan is required)*
 1. Read plan file
 2. Review critically - identify any questions or concerns about the plan
 3. If concerns: Raise them with your human partner before starting
